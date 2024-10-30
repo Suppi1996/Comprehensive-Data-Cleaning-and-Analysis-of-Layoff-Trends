@@ -9,7 +9,10 @@ To start, we loaded the layoffs data into our SQL environment and began with som
 
 
 -- Viewing the initial data
+
 SELECT * FROM W_LAYOFFS..layoffs;
+
+![image](https://github.com/user-attachments/assets/d111886d-2afd-4191-af4c-cff46f622ea5)
 
 
 ## Step 1: Data Cleaning
@@ -132,6 +135,8 @@ We started by calculating the maximum total layoffs and the percentage laid off.
 
 SELECT MAX(total_laid_off), MAX(percentage_laid_off) FROM layoffs_staging2;
 
+![image](https://github.com/user-attachments/assets/b959cbaf-fae3-473e-8840-fd84c3b5c14e)
+
 
 ### Company Analysis
 
@@ -142,6 +147,8 @@ SELECT company, SUM(total_laid_off) AS total_laid_off
 FROM layoffs_staging2
 GROUP BY company
 ORDER BY total_laid_off DESC;
+
+![image](https://github.com/user-attachments/assets/b35f9f7c-bf92-42e1-9474-46f7cb6588d2)
 
 
 ### Industry and Country Analysis
@@ -154,10 +161,14 @@ FROM layoffs_staging2
 GROUP BY industry
 ORDER BY SUM(total_laid_off) DESC;
 
+![image](https://github.com/user-attachments/assets/7116fa90-e518-427b-8858-9b52fe9d9fe0)
+
 SELECT country, SUM(total_laid_off) 
 FROM layoffs_staging2
 GROUP BY country
 ORDER BY SUM(total_laid_off) DESC;
+
+![image](https://github.com/user-attachments/assets/66c76466-49d5-40c9-9a38-9b4ea5cdcac2)
 
 
 ### Temporal Analysis
@@ -171,26 +182,47 @@ FROM layoffs_staging2
 GROUP BY YEAR(date)
 ORDER BY SUM(total_laid_off) DESC;
 
+![image](https://github.com/user-attachments/assets/e2a6b721-9617-41bf-bbf2-d1a82a2eeaa3)
+
+
 -- Monthly layoffs
 SELECT FORMAT(date, 'yyyy-MM') AS month, SUM(total_laid_off) AS total_laid_off
 FROM layoffs_staging2
 GROUP BY FORMAT(date, 'yyyy-MM')
 ORDER BY month ASC;
 
+![image](https://github.com/user-attachments/assets/d5c352d2-1df3-4918-972a-c9b891cedc6e)
 
-## Conclusion
+--Rolling total number of laid_offs
+WITH cte AS (
+    SELECT CAST(FORMAT(date, 'yyyy-MM') AS VARCHAR(7)) AS month, 
+           SUM(total_laid_off) AS total_laid_off
+    FROM layoffs_staging2
+    GROUP BY FORMAT(date, 'yyyy-MM')
+)
+SELECT month, 
+       total_laid_off, 
+       SUM(total_laid_off) OVER (ORDER BY month ASC) AS cumulative_total_laid_off
+FROM cte
+ORDER BY month ASC;
 
-This analysis of layoffs data highlights the importance of thorough data cleaning and exploratory analysis. By transforming raw data into structured insights, we can better understand the complexities of layoffs across various sectors. 
+![image](https://github.com/user-attachments/assets/01b17e71-8f9d-4712-8759-a6edf420b288)
 
-As industries continue to evolve, having a clear understanding of these trends will be essential for stakeholders at all levels.
+--Grouping by company and year
+select company,CAST(FORMAT(date, 'yyyy') AS VARCHAR(4)) AS year ,sum(total_laid_off) as laid_off from layoffs_staging2
+group by company ,CAST(FORMAT(date, 'yyyy') AS VARCHAR(4))
+order by 1 asc;
+![image](https://github.com/user-attachments/assets/9766b80a-5c05-4af2-8916-1e06d628442a)
 
----
+--which company has large number of laid_offs based on year
+with cte as(select company,CAST(FORMAT(date, 'yyyy') AS VARCHAR(4)) AS year ,sum(total_laid_off) as laid_off from layoffs_staging2
+group by company ,CAST(FORMAT(date, 'yyyy') AS VARCHAR(4)))
+select * ,dense_rank() over (partition by year order by laid_off desc) as rank from cte;
+![image](https://github.com/user-attachments/assets/6250f9ed-c081-46bd-b378-2f9057f59595)
 
-### Publishing on GitHub Pages
+Conclusion and Key Learnings
+In this analysis, we’ve learned the importance of data cleaning and the impact it has on the quality of our insights. By removing duplicates, standardizing our dataset, and addressing null values, we laid a strong foundation for our exploratory analysis.
 
-1. **Create a new repository** on GitHub and enable GitHub Pages.
-2. **Add a new Markdown file** (`analysis.md` or similar) and paste the content above into it.
-3. **Commit and push** the changes.
-4. Visit your GitHub Pages URL to see your formatted article.
+The insights derived from the cleaned data can help stakeholders understand layoff trends better, potentially informing future business strategies and decisions.
 
-Feel free to adjust the narrative or code snippets to better fit your style!
+
