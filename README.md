@@ -176,7 +176,7 @@ ORDER BY SUM(total_laid_off) DESC;
 Analyzing layoffs over time helps identify trends and patterns. We summarized the total layoffs by year and month.
 
 
--- Yearly layoffs
+### Yearly layoffs
 SELECT YEAR(date) AS year, SUM(total_laid_off) 
 FROM layoffs_staging2
 GROUP BY YEAR(date)
@@ -185,7 +185,7 @@ ORDER BY SUM(total_laid_off) DESC;
 ![image](https://github.com/user-attachments/assets/e2a6b721-9617-41bf-bbf2-d1a82a2eeaa3)
 
 
--- Monthly layoffs
+### Monthly layoffs
 SELECT FORMAT(date, 'yyyy-MM') AS month, SUM(total_laid_off) AS total_laid_off
 FROM layoffs_staging2
 GROUP BY FORMAT(date, 'yyyy-MM')
@@ -193,7 +193,8 @@ ORDER BY month ASC;
 
 ![image](https://github.com/user-attachments/assets/d5c352d2-1df3-4918-972a-c9b891cedc6e)
 
---Rolling total number of laid_offs
+### Rolling total number of laid_offs
+
 WITH cte AS (
     SELECT CAST(FORMAT(date, 'yyyy-MM') AS VARCHAR(7)) AS month, 
            SUM(total_laid_off) AS total_laid_off
@@ -208,19 +209,20 @@ ORDER BY month ASC;
 
 ![image](https://github.com/user-attachments/assets/01b17e71-8f9d-4712-8759-a6edf420b288)
 
---Grouping by company and year
+### Grouping by company and year
+
 select company,CAST(FORMAT(date, 'yyyy') AS VARCHAR(4)) AS year ,sum(total_laid_off) as laid_off from layoffs_staging2
 group by company ,CAST(FORMAT(date, 'yyyy') AS VARCHAR(4))
 order by 1 asc;
 ![image](https://github.com/user-attachments/assets/9766b80a-5c05-4af2-8916-1e06d628442a)
 
---which company has large number of laid_offs based on year
+## which company has large number of laid_offs based on year
 with cte as(select company,CAST(FORMAT(date, 'yyyy') AS VARCHAR(4)) AS year ,sum(total_laid_off) as laid_off from layoffs_staging2
 group by company ,CAST(FORMAT(date, 'yyyy') AS VARCHAR(4)))
 select * ,dense_rank() over (partition by year order by laid_off desc) as rank from cte;
 ![image](https://github.com/user-attachments/assets/6250f9ed-c081-46bd-b378-2f9057f59595)
 
-Conclusion and Key Learnings
+### Conclusion and Key Learnings
 In this analysis, we’ve learned the importance of data cleaning and the impact it has on the quality of our insights. By removing duplicates, standardizing our dataset, and addressing null values, we laid a strong foundation for our exploratory analysis.
 
 The insights derived from the cleaned data can help stakeholders understand layoff trends better, potentially informing future business strategies and decisions.
