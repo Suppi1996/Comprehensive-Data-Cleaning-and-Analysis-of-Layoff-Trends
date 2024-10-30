@@ -54,7 +54,8 @@ Next, we populated this table with data while identifying duplicates.
 INSERT INTO layoffs_staging
 SELECT * FROM layoffs;
 
-###creating another staging table to delete duplicate records
+### creating another staging table to delete duplicate records
+
 
 USE [W_LAYOFFS]
 GO
