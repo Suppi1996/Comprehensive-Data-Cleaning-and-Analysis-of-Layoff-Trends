@@ -40,7 +40,8 @@ WHERE row_num > 1;
 To work with cleaned data, we created a staging table to hold the refined records.
 
 
--- Creating a staging table
+### Creating a staging table
+
 SELECT *
 INTO layoffs_staging
 FROM layoffs
@@ -53,7 +54,7 @@ Next, we populated this table with data while identifying duplicates.
 INSERT INTO layoffs_staging
 SELECT * FROM layoffs;
 
---creating another staging table to delete duplicate records
+###creating another staging table to delete duplicate records
 
 USE [W_LAYOFFS]
 GO
@@ -90,17 +91,18 @@ INSERT INTO layoffs_staging2
 
 select * from layoffs_staging2 where row_number>1;
 
---DELETING DUPLICATES
+### DELETING DUPLICATES
+
 delete from layoffs_staging2 where row_number>1;
 
 ### Standardizing Data
 
 Standardization is key to ensuring that our analyses are consistent. We trimmed whitespace from company names and standardized industry names.
 
-
 UPDATE layoffs_staging2 SET company = TRIM(company);
 
--- Merging similar industries
+### Merging similar industries
+
 UPDATE layoffs_staging2 SET industry = 'Crypto' WHERE industry LIKE 'Crypto%';
 
 
@@ -109,7 +111,7 @@ UPDATE layoffs_staging2 SET industry = 'Crypto' WHERE industry LIKE 'Crypto%';
 We checked for null or blank values and replaced them where necessary.
 
 
--- Identifying NULL or blank values
+### Identifying NULL or blank values
 SELECT * FROM layoffs_staging2 WHERE industry IS NULL;
 
 UPDATE layoffs_staging2 SET industry = 'NULL' WHERE industry = ' ';
@@ -119,8 +121,7 @@ UPDATE layoffs_staging2 SET industry = 'NULL' WHERE industry = ' ';
 
 Next, we focused on converting data types to ensure they were appropriate for analysis. This included converting the date from a varchar to a date type.
 
-
--- Converting date from varchar to date
+### Converting date from varchar to date
 UPDATE layoffs_staging2 SET date = CONVERT(DATE, date, 101) WHERE TRY_CONVERT(DATE, date, 101) IS NOT NULL;
 
 
